@@ -95,23 +95,46 @@ const LEVELS = [
 			{ x: 9320, y: canvas.height - 200, size: 20 },
 			{ x: 9630, y: canvas.height - 150, size: 20 },
 		],
-        water: [
-            { x: 110, y: canvas.height - 101, width: 80, height: 21 },  // Platform at x: 50, width: 200
-            { x: 650, y: canvas.height - 301, width: 80, height: 21 },  // Platform at x: 600, width: 200
-            { x: 1180, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 1150, width: 200
-            { x: 1760, y: canvas.height - 351, width: 80, height: 21 }, // Platform at x: 1700, width: 200
-            { x: 2580, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 2500, width: 200
-            { x: 3380, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 3300, width: 200
-            { x: 4850, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 4800, width: 200
-            { x: 5730, y: canvas.height - 201, width: 80, height: 21 }, // Platform at x: 5700, width: 200
-            { x: 6320, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 6300, width: 200
-            { x: 7230, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 7200, width: 200
-            { x: 8450, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 8400, width: 200
-            { x: 9630, y: canvas.height - 151, width: 80, height: 21 }  // Platform at x: 9600, width: 200
-        ],
+		water: [
+			{ x: 110, y: canvas.height - 101, width: 80, height: 21 }, // Platform at x: 50, width: 200
+			{ x: 650, y: canvas.height - 301, width: 80, height: 21 }, // Platform at x: 600, width: 200
+			{ x: 1180, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 1150, width: 200
+			{ x: 1760, y: canvas.height - 351, width: 80, height: 21 }, // Platform at x: 1700, width: 200
+			{ x: 2580, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 2500, width: 200
+			{ x: 3380, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 3300, width: 200
+			{ x: 4850, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 4800, width: 200
+			{ x: 5730, y: canvas.height - 201, width: 80, height: 21 }, // Platform at x: 5700, width: 200
+			{ x: 6320, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 6300, width: 200
+			{ x: 7230, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 7200, width: 200
+			{ x: 8450, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 8400, width: 200
+			{ x: 9630, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 9600, width: 200
+		],
 		finish: { x: 10650, y: canvas.height - 250, width: 50, height: 50 }, // Finish block
 	},
 ];
+
+function checkCollisions() {
+	const level = LEVELS[0];
+	ball.onGround = false;
+
+	level.platforms.forEach((platform) => {
+		const adjustedX = platform.x - cameraOffset;
+
+		// Detect if the ball is on the platform
+		if (
+			ball.x > platform.x - ball.radius &&
+			ball.x < platform.x + platform.width + ball.radius &&
+			ball.y + ball.radius >= platform.y &&
+			ball.y - ball.radius < platform.y + platform.height
+		) {
+			if (ball.speedY > 0) {
+				ball.speedY = 0;
+				ball.onGround = true;
+				ball.y = platform.y - ball.radius;
+			}
+		}
+	});
+}
 
 // Input
 const keys = { a: false, d: false, space: false, r: false };
@@ -258,78 +281,78 @@ function resetLevel() {
 	respawnCount++;
 }
 
+// Draw the platforms
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw HUD elements only if result screen is not showing
-    if (!showResult) {
-        ctx.fillStyle = 'white';
-        ctx.font = '20px Arial';
-        ctx.fillText(`Respawns: ${respawnCount}`, 10, 30);
-        ctx.fillText(`God Mode: ${godMode ? 'ON' : 'OFF'}`, 10, 60);
+	// Draw HUD elements only if result screen is not showing
+	if (!showResult) {
+		ctx.fillStyle = 'white';
+		ctx.font = '20px Arial';
+		ctx.fillText(`Respawns: ${respawnCount}`, 10, 30);
+		ctx.fillText(`God Mode: ${godMode ? 'ON' : 'OFF'}`, 10, 60);
 
-        // Instructions in the top right
-        ctx.textAlign = 'right';
-        ctx.fillText("Press 'R' to Respawn", canvas.width - 10, 30);
-        ctx.fillText("Press 'G' for God Mode", canvas.width - 10, 60);
-        ctx.textAlign = 'left';  // Reset text alignment for future text
-    }
+		// Instructions in the top right
+		ctx.textAlign = 'right';
+		ctx.fillText("Press 'R' to Respawn", canvas.width - 10, 30);
+		ctx.fillText("Press 'G' for God Mode", canvas.width - 10, 60);
+		ctx.textAlign = 'left'; // Reset text alignment for future text
+	}
 
-    // Draw the ball
-    ctx.fillStyle = 'blue';
-    ctx.beginPath();
-    ctx.arc(ball.x - cameraOffset, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fill();
+	// Draw the ball
+	ctx.fillStyle = 'blue';
+	ctx.beginPath();
+	ctx.arc(ball.x - cameraOffset, ball.y, ball.radius, 0, Math.PI * 2);
+	ctx.fill();
 
-    // Draw level objects
-    const level = LEVELS[0];
-    ctx.fillStyle = 'gray';
-    level.platforms.forEach((platform) => {
-        ctx.fillRect(
-            platform.x - cameraOffset,
-            platform.y,
-            platform.width,
-            platform.height
-        );
-    });
+	// Draw level objects
+	const level = LEVELS[0];
+	ctx.fillStyle = 'gray';
+	level.platforms.forEach((platform) => {
+		ctx.fillRect(
+			platform.x - cameraOffset,
+			platform.y,
+			platform.width,
+			platform.height
+		);
+	});
 
-    ctx.fillStyle = 'red';
-    level.spikes.forEach((spike) => {
-        ctx.beginPath();
-        ctx.moveTo(spike.x - cameraOffset, spike.y);
-        ctx.lineTo(spike.x - cameraOffset + spike.size / 2, spike.y - spike.size);
-        ctx.lineTo(spike.x - cameraOffset + spike.size, spike.y);
-        ctx.closePath();
-        ctx.fill();
-    });
+	ctx.fillStyle = 'red';
+	level.spikes.forEach((spike) => {
+		ctx.beginPath();
+		ctx.moveTo(spike.x - cameraOffset, spike.y);
+		ctx.lineTo(spike.x - cameraOffset + spike.size / 2, spike.y - spike.size);
+		ctx.lineTo(spike.x - cameraOffset + spike.size, spike.y);
+		ctx.closePath();
+		ctx.fill();
+	});
 
-    ctx.fillStyle = 'cyan';
-    level.water.forEach((water) => {
-        ctx.fillRect(water.x - cameraOffset, water.y, water.width, water.height);
-    });
+	ctx.fillStyle = 'cyan';
+	level.water.forEach((water) => {
+		ctx.fillRect(water.x - cameraOffset, water.y, water.width, water.height);
+	});
 
-    ctx.fillStyle = 'green';
-    const finish = level.finish;
-    ctx.fillRect(finish.x - cameraOffset, finish.y, finish.width, finish.height);
+	ctx.fillStyle = 'green';
+	const finish = level.finish;
+	ctx.fillRect(finish.x - cameraOffset, finish.y, finish.width, finish.height);
 
-    // Show result screen if level is finished
-    if (showResult) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+	// Show result screen if level is finished
+	if (showResult) {
+		ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = 'white';
-        ctx.font = '30px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Congratulations!', canvas.width / 2, canvas.height / 2 - 50);
-        ctx.fillText(
-            `Final Time: ${finalTime} seconds`,
-            canvas.width / 2,
-            canvas.height / 2
-        );
-        ctx.textAlign = 'left'; // Reset text alignment for future text
-    }
+		ctx.fillStyle = 'white';
+		ctx.font = '30px Arial';
+		ctx.textAlign = 'center';
+		ctx.fillText('Congratulations!', canvas.width / 2, canvas.height / 2 - 50);
+		ctx.fillText(
+			`Final Time: ${finalTime} seconds`,
+			canvas.width / 2,
+			canvas.height / 2
+		);
+		ctx.textAlign = 'left'; // Reset text alignment for future text
+	}
 }
-
 
 // Start the game
 initializePlayer();
