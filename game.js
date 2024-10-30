@@ -12,9 +12,10 @@ let respawnCount = 0;
 let godMode = false;
 let timerStart = null;
 let finalTime = null;
-let timerStarted = false; // Track if the timer has started after movement
+let timerStarted = false;
+let showResult = false; // Track if the result screen is showing
 const GRAVITY = 0.3,
-	JUMP_STRENGTH = -10,
+	JUMP_STRENGTH = -12,
 	SPEED = 3;
 
 const LEVELS = [
@@ -59,58 +60,55 @@ const LEVELS = [
 			{ x: 10500, y: canvas.height - 200, width: 200, height: 20 },
 		],
 		spikes: [
-			{ x: 180, y: canvas.height - 100, size: 20 },
+			{ x: 120, y: canvas.height - 100, size: 20 },
 			{ x: 340, y: canvas.height - 200, size: 20 },
-			{ x: 670, y: canvas.height - 300, size: 20 },
-			{ x: 930, y: canvas.height - 200, size: 20 },
-			{ x: 1550, y: canvas.height - 250, size: 20 },
-			{ x: 1740, y: canvas.height - 350, size: 20 },
-			{ x: 2070, y: canvas.height - 200, size: 20 },
-			{ x: 2590, y: canvas.height - 250, size: 20 },
-			{ x: 3080, y: canvas.height - 300, size: 20 },
+			{ x: 650, y: canvas.height - 300, size: 20 },
+			{ x: 950, y: canvas.height - 200, size: 20 },
+			{ x: 1180, y: canvas.height - 150, size: 20 },
+			{ x: 1420, y: canvas.height - 250, size: 20 },
+			{ x: 1760, y: canvas.height - 350, size: 20 },
+			{ x: 2100, y: canvas.height - 200, size: 20 },
+			{ x: 2330, y: canvas.height - 150, size: 20 },
+			{ x: 2580, y: canvas.height - 250, size: 20 },
+			{ x: 2780, y: canvas.height - 200, size: 20 },
+			{ x: 3030, y: canvas.height - 300, size: 20 },
+			{ x: 3350, y: canvas.height - 250, size: 20 },
 			{ x: 3680, y: canvas.height - 200, size: 20 },
-			{ x: 3970, y: canvas.height - 150, size: 20 },
-			{ x: 4270, y: canvas.height - 300, size: 20 },
-			{ x: 4580, y: canvas.height - 250, size: 20 },
-			{ x: 4880, y: canvas.height - 150, size: 20 },
-			{ x: 5200, y: canvas.height - 250, size: 20 },
+			{ x: 3910, y: canvas.height - 150, size: 20 },
+			{ x: 4250, y: canvas.height - 300, size: 20 },
+			{ x: 4520, y: canvas.height - 250, size: 20 },
+			{ x: 4850, y: canvas.height - 150, size: 20 },
+			{ x: 5120, y: canvas.height - 250, size: 20 },
 			{ x: 5450, y: canvas.height - 300, size: 20 },
-			{ x: 5750, y: canvas.height - 200, size: 20 },
-			{ x: 6100, y: canvas.height - 150, size: 20 },
-			{ x: 6350, y: canvas.height - 250, size: 20 },
+			{ x: 5730, y: canvas.height - 200, size: 20 },
+			{ x: 6030, y: canvas.height - 150, size: 20 },
+			{ x: 6320, y: canvas.height - 250, size: 20 },
 			{ x: 6650, y: canvas.height - 350, size: 20 },
-			{ x: 6980, y: canvas.height - 200, size: 20 },
-			{ x: 7350, y: canvas.height - 250, size: 20 },
-			{ x: 7650, y: canvas.height - 300, size: 20 },
-			{ x: 7980, y: canvas.height - 200, size: 20 },
-			{ x: 8250, y: canvas.height - 150, size: 20 },
-			{ x: 8550, y: canvas.height - 250, size: 20 },
-			{ x: 8850, y: canvas.height - 350, size: 20 },
-			{ x: 9200, y: canvas.height - 200, size: 20 },
-			{ x: 9550, y: canvas.height - 150, size: 20 },
-			{ x: 9800, y: canvas.height - 300, size: 20 },
-			{ x: 10150, y: canvas.height - 250, size: 20 },
-			{ x: 10400, y: canvas.height - 200, size: 20 },
+			{ x: 6930, y: canvas.height - 200, size: 20 },
+			{ x: 7230, y: canvas.height - 150, size: 20 },
+			{ x: 7530, y: canvas.height - 250, size: 20 },
+			{ x: 7850, y: canvas.height - 300, size: 20 },
+			{ x: 8120, y: canvas.height - 200, size: 20 },
+			{ x: 8450, y: canvas.height - 150, size: 20 },
+			{ x: 8750, y: canvas.height - 250, size: 20 },
+			{ x: 9050, y: canvas.height - 350, size: 20 },
+			{ x: 9320, y: canvas.height - 200, size: 20 },
+			{ x: 9630, y: canvas.height - 150, size: 20 },
 		],
-		water: [
-			{ x: 1250, y: canvas.height - 151, width: 80, height: 21 },
-			{ x: 1550, y: canvas.height - 251, width: 60, height: 21 },
-			{ x: 2300, y: canvas.height - 151, width: 90, height: 21 },
-			{ x: 2600, y: canvas.height - 251, width: 70, height: 21 },
-			{ x: 3400, y: canvas.height - 251, width: 80, height: 21 },
-			{ x: 4250, y: canvas.height - 301, width: 100, height: 21 },
-			{ x: 4750, y: canvas.height - 151, width: 80, height: 21 },
-			{ x: 5250, y: canvas.height - 251, width: 90, height: 21 },
-			{ x: 6050, y: canvas.height - 151, width: 70, height: 21 },
-			{ x: 6450, y: canvas.height - 251, width: 80, height: 21 },
-			{ x: 7150, y: canvas.height - 151, width: 90, height: 21 },
-			{ x: 7800, y: canvas.height - 301, width: 100, height: 21 },
-			{ x: 8400, y: canvas.height - 151, width: 80, height: 21 },
-			{ x: 8900, y: canvas.height - 251, width: 90, height: 21 },
-			{ x: 9500, y: canvas.height - 151, width: 80, height: 21 },
-			{ x: 10050, y: canvas.height - 251, width: 90, height: 21 },
-		],
-
+        water: [
+            { x: 110, y: canvas.height - 101, width: 80, height: 21 },  // Platform at x: 50, width: 200
+            { x: 650, y: canvas.height - 301, width: 80, height: 21 },  // Platform at x: 600, width: 200
+            { x: 1180, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 1150, width: 200
+            { x: 1760, y: canvas.height - 351, width: 80, height: 21 }, // Platform at x: 1700, width: 200
+            { x: 2580, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 2500, width: 200
+            { x: 3380, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 3300, width: 200
+            { x: 4850, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 4800, width: 200
+            { x: 5730, y: canvas.height - 201, width: 80, height: 21 }, // Platform at x: 5700, width: 200
+            { x: 6320, y: canvas.height - 251, width: 80, height: 21 }, // Platform at x: 6300, width: 200
+            { x: 7230, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 7200, width: 200
+            { x: 8450, y: canvas.height - 151, width: 80, height: 21 }, // Platform at x: 8400, width: 200
+            { x: 9630, y: canvas.height - 151, width: 80, height: 21 }  // Platform at x: 9600, width: 200
+        ],
 		finish: { x: 10650, y: canvas.height - 250, width: 50, height: 50 }, // Finish block
 	},
 ];
@@ -145,15 +143,18 @@ function initializePlayer() {
 	ball.speedY = 0;
 	ball.onGround = true;
 	startTimer();
+	showResult = false; // Hide result screen on respawn
 }
 
 function startTimer() {
 	timerStart = null;
 	finalTime = null;
-	timerStarted = false; // Timer will start when player moves
+	timerStarted = false;
 }
 
 function update() {
+	if (showResult) return; // Stop updating when result is displayed
+
 	if ((keys.a || keys.d) && !timerStarted) {
 		timerStart = performance.now();
 		timerStarted = true;
@@ -242,13 +243,12 @@ function checkCollisions() {
 	) {
 		stopTimer();
 	}
-
-	if (ball.x - ball.radius < 0) ball.x = ball.radius;
 }
 
 function stopTimer() {
 	if (timerStart) {
 		finalTime = ((performance.now() - timerStart) / 1000).toFixed(2);
+		showResult = true; // Show result screen
 	}
 }
 
@@ -259,55 +259,77 @@ function resetLevel() {
 }
 
 function draw() {
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	ctx.fillStyle = 'white';
-	ctx.font = '20px Arial';
-	ctx.fillText(`Respawns: ${respawnCount}`, 10, 30);
-	ctx.fillText(`God Mode: ${godMode ? 'ON' : 'OFF'}`, 10, 60);
+    // Draw HUD elements only if result screen is not showing
+    if (!showResult) {
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        ctx.fillText(`Respawns: ${respawnCount}`, 10, 30);
+        ctx.fillText(`God Mode: ${godMode ? 'ON' : 'OFF'}`, 10, 60);
 
-	const elapsedTime = finalTime
-		? finalTime
-		: timerStarted
-		? ((performance.now() - timerStart) / 1000).toFixed(2)
-		: '0.00';
-	ctx.fillText(`Time: ${elapsedTime} seconds`, 10, 90);
+        // Instructions in the top right
+        ctx.textAlign = 'right';
+        ctx.fillText("Press 'R' to Respawn", canvas.width - 10, 30);
+        ctx.fillText("Press 'G' for God Mode", canvas.width - 10, 60);
+        ctx.textAlign = 'left';  // Reset text alignment for future text
+    }
 
-	ctx.fillStyle = 'blue';
-	ctx.beginPath();
-	ctx.arc(ball.x - cameraOffset, ball.y, ball.radius, 0, Math.PI * 2);
-	ctx.fill();
+    // Draw the ball
+    ctx.fillStyle = 'blue';
+    ctx.beginPath();
+    ctx.arc(ball.x - cameraOffset, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fill();
 
-	const level = LEVELS[0];
-	ctx.fillStyle = 'gray';
-	level.platforms.forEach((platform) => {
-		ctx.fillRect(
-			platform.x - cameraOffset,
-			platform.y,
-			platform.width,
-			platform.height
-		);
-	});
+    // Draw level objects
+    const level = LEVELS[0];
+    ctx.fillStyle = 'gray';
+    level.platforms.forEach((platform) => {
+        ctx.fillRect(
+            platform.x - cameraOffset,
+            platform.y,
+            platform.width,
+            platform.height
+        );
+    });
 
-	ctx.fillStyle = 'red';
-	level.spikes.forEach((spike) => {
-		ctx.beginPath();
-		ctx.moveTo(spike.x - cameraOffset, spike.y);
-		ctx.lineTo(spike.x - cameraOffset + spike.size / 2, spike.y - spike.size);
-		ctx.lineTo(spike.x - cameraOffset + spike.size, spike.y);
-		ctx.closePath();
-		ctx.fill();
-	});
+    ctx.fillStyle = 'red';
+    level.spikes.forEach((spike) => {
+        ctx.beginPath();
+        ctx.moveTo(spike.x - cameraOffset, spike.y);
+        ctx.lineTo(spike.x - cameraOffset + spike.size / 2, spike.y - spike.size);
+        ctx.lineTo(spike.x - cameraOffset + spike.size, spike.y);
+        ctx.closePath();
+        ctx.fill();
+    });
 
-	ctx.fillStyle = 'cyan';
-	level.water.forEach((water) => {
-		ctx.fillRect(water.x - cameraOffset, water.y, water.width, water.height);
-	});
+    ctx.fillStyle = 'cyan';
+    level.water.forEach((water) => {
+        ctx.fillRect(water.x - cameraOffset, water.y, water.width, water.height);
+    });
 
-	ctx.fillStyle = 'green';
-	const finish = level.finish;
-	ctx.fillRect(finish.x - cameraOffset, finish.y, finish.width, finish.height);
+    ctx.fillStyle = 'green';
+    const finish = level.finish;
+    ctx.fillRect(finish.x - cameraOffset, finish.y, finish.width, finish.height);
+
+    // Show result screen if level is finished
+    if (showResult) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = 'white';
+        ctx.font = '30px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Congratulations!', canvas.width / 2, canvas.height / 2 - 50);
+        ctx.fillText(
+            `Final Time: ${finalTime} seconds`,
+            canvas.width / 2,
+            canvas.height / 2
+        );
+        ctx.textAlign = 'left'; // Reset text alignment for future text
+    }
 }
+
 
 // Start the game
 initializePlayer();
