@@ -7,7 +7,7 @@ canvas.height = window.innerHeight;
 
 // Game variables
 let ball = { x: 0, y: 0, radius: 15, speedX: 0, speedY: 0, onGround: false };
-const GRAVITY = 0.3, JUMP_STRENGTH = -7, SPEED = 3;
+const GRAVITY = 0.3, JUMP_STRENGTH = -8, SPEED = 3;
 const LEVELS = [
     {
         platforms: [
@@ -18,12 +18,13 @@ const LEVELS = [
             { x: 1150, y: canvas.height - 150, width: 200, height: 20 }
         ],
         spikes: [
-            { x: 400, y: canvas.height - 220, width: 20, height: 20 },
-            { x: 640, y: canvas.height - 320, width: 20, height: 20 },
-            { x: 920, y: canvas.height - 220, width: 20, height: 20 }
+            { x: 100, y: canvas.height - 100, size: 20 },   // Spike on first platform
+            { x: 350, y: canvas.height - 200, size: 20 },   // Spike on second platform
+            { x: 620, y: canvas.height - 300, size: 20 },   // Spike on third platform
+            { x: 940, y: canvas.height - 200, size: 20 }    // Spike on fourth platform
         ],
         water: [
-            { x: 1150, y: canvas.height - 170, width: 80, height: 20 } // Water on the platform
+            { x: 1170, y: canvas.height - 140, width: 80, height: 10 } // Water embedded in last platform
         ]
     }
 ];
@@ -112,16 +113,27 @@ function checkCollisions() {
 
     // Spike collision (game over condition)
     level.spikes.forEach(spike => {
-        if (ball.x > spike.x && ball.x < spike.x + spike.width &&
-            ball.y + ball.radius > spike.y) {
-            resetLevel();
+        // Check if the ball is within the horizontal bounds of the spike
+        if (ball.x > spike.x && ball.x < spike.x + spike.size) {
+            // Check if the ball's bottom edge is within the triangular spike area
+            const spikePeakY = spike.y - spike.size; // Y-coordinate of the triangle's peak
+            const spikeBaseY = spike.y;
+            const spikeSlope = (spikeBaseY - spikePeakY) / (spike.size / 2);
+
+            // Calculate the ball's effective height at its x-position over the spike
+            const distanceFromPeak = Math.abs(ball.x - (spike.x + spike.size / 2));
+            const spikeHeightAtX = spikeBaseY - distanceFromPeak * spikeSlope;
+
+            if (ball.y + ball.radius > spikeHeightAtX) {
+                resetLevel();
+            }
         }
     });
 
     // Water collision (game over condition)
     level.water.forEach(water => {
         if (ball.x > water.x && ball.x < water.x + water.width &&
-            ball.y + ball.radius > water.y) {
+            ball.y + ball.radius > water.y && ball.y - ball.radius < water.y + water.height) {
             resetLevel();
         }
     });
@@ -153,13 +165,18 @@ function draw() {
         ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
     });
 
-    // Spikes
+    // Triangular spikes on top of platforms
     ctx.fillStyle = 'red';
     level.spikes.forEach(spike => {
-        ctx.fillRect(spike.x, spike.y, spike.width, spike.height);
+        ctx.beginPath();
+        ctx.moveTo(spike.x, spike.y); // Bottom left of the triangle
+        ctx.lineTo(spike.x + spike.size / 2, spike.y - spike.size); // Top of the triangle
+        ctx.lineTo(spike.x + spike.size, spike.y); // Bottom right of the triangle
+        ctx.closePath();
+        ctx.fill();
     });
 
-    // Water
+    // Water embedded in platforms
     ctx.fillStyle = 'cyan';
     level.water.forEach(water => {
         ctx.fillRect(water.x, water.y, water.width, water.height);
