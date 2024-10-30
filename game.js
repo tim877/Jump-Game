@@ -1,12 +1,31 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Set canvas to fill the entire window
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
 // Game variables
 let ball = { x: 0, y: 0, radius: 15, speedX: 0, speedY: 0, onGround: false };
 const GRAVITY = 0.3, JUMP_STRENGTH = -7, SPEED = 3;
 const LEVELS = [
-    { platforms: [{ x: 50, y: 500, width: 700, height: 20 }], spikes: [{ x: 300, y: 480, width: 20, height: 20 }], water: [{ x: 500, y: 580, width: 80, height: 20 }] },
-    // Add more levels here
+    {
+        platforms: [
+            { x: 50, y: canvas.height - 100, width: 200, height: 20 },
+            { x: 300, y: canvas.height - 200, width: 200, height: 20 },
+            { x: 600, y: canvas.height - 300, width: 200, height: 20 },
+            { x: 900, y: canvas.height - 200, width: 150, height: 20 },
+            { x: 1150, y: canvas.height - 150, width: 200, height: 20 }
+        ],
+        spikes: [
+            { x: 400, y: canvas.height - 220, width: 20, height: 20 },
+            { x: 640, y: canvas.height - 320, width: 20, height: 20 },
+            { x: 920, y: canvas.height - 220, width: 20, height: 20 }
+        ],
+        water: [
+            { x: 1150, y: canvas.height - 170, width: 80, height: 20 } // Water on the platform
+        ]
+    }
 ];
 let currentLevel = 0;
 
@@ -23,6 +42,13 @@ document.addEventListener('keyup', (e) => {
     if (e.key === "a") keys.a = false;
     if (e.key === "d") keys.d = false;
     if (e.key === " ") keys.space = false; // Reset spacebar after jump
+});
+
+// Adjust canvas size if the window is resized
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initializePlayer(); // Reset player position on resize
 });
 
 // Initialize player position on the left side of the first platform
